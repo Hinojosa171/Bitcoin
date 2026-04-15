@@ -61,7 +61,7 @@ Todo el código y la documentación se entregan como evidencia del sistema funci
 ✅ La tabla se actualiza automáticamente cada 10 segundos
 ✅ Dashboard muestra: Total registros, Precio actual, Máximo, Mínimo
 
-✅ Paso 7 – Implementar MongoDB + Render (COMPLETADO)
+✅ Paso 7 – Implementar MongoDB + Render (COMPLETADO) ✅
 ✅ Paso 7.1 – MongoDB Atlas configurado
    → Cluster creado en MongoDB Atlas
    → Connection String obtenida: mongodb+srv://Prueba:***@cluster0.0ht3eoq.mongodb.net/TuCobradorDB
@@ -79,33 +79,36 @@ Todo el código y la documentación se entregan como evidencia del sistema funci
    → Los datos no se pierden al reiniciar el servidor
    → La base de datos almacena automáticamente: timestamp, precio, moneda
 
-📋 Paso 8 – Desplegar en Render.com (PRÓXIMO)
-Tareas pendientes:
-🔲 Paso 8.1 – Crear cuenta en GitHub
-   → Si no la tiene, crear en https://github.com
+✅ Paso 8 – Desplegar en Render.com (COMPLETADO) ✅
+✅ Paso 8.1 – Cuenta en GitHub creada
+   → Repositorio: https://github.com/Hinojosa171/Bitcoin
 
-🔲 Paso 8.2 – Subir código a GitHub
-   → git init
-   → git add .
-   → git commit -m "Sistema IoT con MongoDB"
-   → git push al repositorio
+✅ Paso 8.2 – Código subido a GitHub
+   → Push completado con todos los archivos
+   → README.md con documentación
 
-🔲 Paso 8.3 – Crear cuenta en Render.com
-   → Registrarse en https://render.com
-   → Conectar con GitHub
+✅ Paso 8.3 – Cuenta en Render.com creada
+   → Conectada con GitHub
+   → Web Service configurado
 
-🔲 Paso 8.4 – Deployar servidor en Render
-   → Crear Web Service
-   → Conectar repositorio GitHub
-   → Configurar: Build Command: npm install
-   → Configurar: Start Command: node server.js
-   → Agregar variable de entorno: MONGO_URI=mongodb+srv://Prueba:***@cluster0.0ht3eoq.mongodb.net/TuCobradorDB
-   → Desplegar y obtener URL fija (ej: https://iot-bitcoin-api.onrender.com)
+✅ Paso 8.4 – Deployar servidor en Render (FUNCIONANDO)
+   → Web Service: bitcoin-cvaq.onrender.com
+   → URL: https://bitcoin-cvaq.onrender.com
+   → Build: npm install ✅
+   → Start: node server.js ✅
+   → MONGO_URI configurada en variables de entorno ✅
 
-🔲 Paso 8.5 – Actualizar ESP32 con URL de Render
-   → Cambiar urlBackend a la URL fija de Render
-   → ESP32 enviará datos permanentemente a la nube
-   → Recompilar y subir firmware
+✅ Paso 8.5 – ESP32 conectado a Render (FUNCIONANDO)
+   → urlBackend actualizada a https://bitcoin-cvaq.onrender.com/api/precios
+   → POST funcionando correctamente (HTTP 201)
+   → Datos guardando en MongoDB ✅
+   → Dashboard mostrando 34+ registros ✅
+
+✅ ARREGLOS FINALES (Completados)
+   → Hora en zona horaria Colombia (UTC-5) correcta
+   → Botón "Actualizar Datos" funcionando sin errores 304
+   → Frontend mostrando precios con 2 decimales correctamente
+   → Historial ordenado correctamente (más recientes primero)
 
 4. Tecnologías utilizadas
 Componente	Tecnología / Herramienta
@@ -129,31 +132,89 @@ El backend no recibe datos → Revisar que CORS esté habilitado (app.use(cors()
 
 ngrok se detiene al cerrar la terminal → Dejar la terminal abierta; para pruebas cortas no hay problema. Para entrega, usar Render.
 
-6. RESUMEN FINAL - SISTEMA EN AVANCE ✅
+6. RESUMEN FINAL - SISTEMA COMPLETADO ✅✅✅
 
 ✅ Conectividad WiFi del ESP32: FUNCIONANDO (192.168.1.17)
 ✅ Código ESP32 (GET + POST): IMPLEMENTADO Y PROBADO
-✅ Backend Node.js + Express: CORRIENDO EN http://localhost:3000
+✅ Backend Node.js + Express: CORRIENDO EN http://localhost:3000 Y EN RENDER
 ✅ Frontend dashboard: MOSTRANDO DATOS EN TIEMPO REAL
-✅ Exposición a Internet: ACTIVO CON ngrok (https://sampling-frays-engaging.ngrok-free.dev)
+✅ Exposición a Internet: https://bitcoin-cvaq.onrender.com (URL FIJA EN NUBE)
 ✅ Prueba integral ESP32 ↔ Backend ↔ CoinGecko: FUNCIONANDO
-✅ Recepción de precios: CONFIRMADA ($74,579 USD - última verificación)
-✅ MongoDB Atlas: CONECTADO Y FUNCIONANDO
+✅ Recepción de precios: CONFIRMADA ($74,521 USD - 34+ registros)
+✅ MongoDB Atlas: CONECTADO Y FUNCIONANDO EN RENDER
 ✅ Persistencia de datos: IMPLEMENTADA (Historial guardado permanentemente)
 ✅ Intervalo de envío: OPTIMIZADO (1 minuto entre consultas)
 ✅ Almacenamiento: MIGRADO DE MEMORIA A MONGODB
+✅ Zona horaria: COLOMBIANA (UTC-5) - CORRECTA
+✅ Dashboard: MOSTRANDO DATOS CON FORMATO CORRECTO
+✅ GitHub: CÓDIGO SUBIDO Y VERSIONADO
+✅ Render: DEPLOYADO Y FUNCIONANDO EN PRODUCCIÓN
 
-=== ESTADO: SISTEMA OPERACIONAL CON PERSISTENCIA ===
+=== 🎉 ESTADO: SISTEMA COMPLETADO Y OPERACIONAL EN PRODUCCIÓN 🎉 ===
 
-7. PRÓXIMOS PASOS - PRODUCCIÓN
+---
 
-PASO 8: Desplegar en Render.com (Siguiente sesión)
-→ Crear repositorio en GitHub
-→ Conectar con Render
-→ Obtener URL fija para reemplazar ngrok
-→ Sistema pasará a PRODUCCIÓN CLOUD
+## 📱 REFERENCIAS Y ACCESOS
 
-REFERENCIAS DE CÓDIGO ACTUALIZADO:
-- Backend: c:\Users\USUARIO\Desktop\Proyecto eps32\backend\server.js (MongoDB integrado)
-- ESP32: c:\Users\USUARIO\Desktop\Proyecto eps32\Codigo de esp32 (Intervalo 1 min)
-- Frontend: c:\Users\USUARIO\Desktop\Proyecto esp32\backend\public\index.html (API funcional)
+**Dashboard en Vivo:**
+- Render (Nube): https://bitcoin-cvaq.onrender.com
+- Local: http://localhost:3000
+
+**GitHub Repositorio:**
+- https://github.com/Hinojosa171/Bitcoin
+
+**MongoDB Atlas:**
+- Database: TuCobradorDB
+- Collections: Precio (34+ registros)
+
+**Archivos del Proyecto:**
+- Backend: c:\Users\USUARIO\Desktop\Proyecto eps32\backend\server.js
+- ESP32: c:\Users\USUARIO\Desktop\Proyecto eps32\Codigo de esp32
+- Frontend: c:\Users\USUARIO\Desktop\Proyecto eps32\backend\public\index.html
+
+---
+
+## 🚀 CÓMO USAR EL SISTEMA
+
+### Inicia con un click:
+1. **Python:** python
+2. **Arduino IDE:** Cargar código en ESP32
+3. **Render:** https://bitcoin-cvaq.onrender.com
+
+### Cada vez que reconectes el ESP32:
+1. Desconecta USB
+2. Espera 2 segundos
+3. Reconecta USB
+4. Abre Monitor Serie (115200 baud)
+5. Verifica: "✅ Enviado OK al backend"
+
+---
+
+## 📊 ESTADÍSTICAS FINALES
+
+- **Total de Registros:** 34+
+- **Precio Actual:** $74,521 USD
+- **Precio Máximo:** $74,769 USD
+- **Precio Mínimo:** $74,498 USD
+- **Intervalo:** 1 minuto (automático)
+- **Almacenamiento:** MongoDB Atlas (Permanente)
+- **Uptimme Render:** Contínuo 24/7
+
+---
+
+## ✅ CHECKLIST FINAL DE CUMPLIMIENTO
+
+✅ ESP32 conectado a WiFi y consultando CoinGecko
+✅ Backend Node.js + Express funcionando
+✅ MongoDB Atlas almacenando datos
+✅ Frontend mostrando historial en tiempo real
+✅ Sistema IoT con POST/GET funcionando
+✅ Deployado en Render.com (URL fija)
+✅ GitHub versionado con código limpio
+✅ Zona horaria Colombia correcta
+✅ Dashboard actualizado sin errores
+✅ Documentación completa
+
+**PROYECTO 100% COMPLETADO** 🎓
+
+Fecha de finalización: 15 de Abril, 2026

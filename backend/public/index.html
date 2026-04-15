@@ -297,7 +297,10 @@
 
         async function cargarPrecios() {
             try {
-                const response = await fetch('/api/precios');
+                // Mostrar que está cargando
+                document.getElementById('loadingMessage').style.display = 'block';
+                
+                const response = await fetch('/api/precios?t=' + new Date().getTime());
                 const data = await response.json();
 
                 document.getElementById('loadingMessage').style.display = 'none';
@@ -318,25 +321,25 @@
 
                 // Calcular Max, Min, Actual
                 const precios = data.precios.map(p => p.precio);
-                const precioActual = precios[precios.length - 1];
+                const precioActual = precios[0]; // El primero es el más reciente (está ordenado DESC)
                 const precioMax = Math.max(...precios);
                 const precioMin = Math.min(...precios);
 
-                document.getElementById('precioActual').textContent = `$${precioActual.toLocaleString('es-CO')}`;
-                document.getElementById('precioMax').textContent = `$${precioMax.toLocaleString('es-CO')}`;
-                document.getElementById('precioMin').textContent = `$${precioMin.toLocaleString('es-CO')}`;
+                document.getElementById('precioActual').textContent = `$${precioActual.toLocaleString('es-CO', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                document.getElementById('precioMax').textContent = `$${precioMax.toLocaleString('es-CO', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                document.getElementById('precioMin').textContent = `$${precioMin.toLocaleString('es-CO', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
-                // Llenar tabla (últimos 20 registros, en orden inverso)
+                // Llenar tabla (últimos 20 registros)
                 const tbody = document.getElementById('preciosBody');
                 tbody.innerHTML = '';
 
-                const ultimos20 = data.precios.slice(-20).reverse();
+                const ultimos20 = data.precios.slice(0, 20); // Ya vienen ordenados DESC
 
                 ultimos20.forEach((precio, index) => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${data.total - index}</td>
-                        <td class="precio-cell">$${precio.precio.toLocaleString('es-CO')}</td>
+                        <td class="precio-cell">$${precio.precio.toLocaleString('es-CO', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                         <td>${precio.moneda}</td>
                         <td>${precio.recibidoEn}</td>
                     `;
@@ -349,6 +352,7 @@
                 document.getElementById('loadingMessage').style.display = 'block';
             }
         }
+        
     </script>
 </body>
 </html>

@@ -37,7 +37,21 @@ const precioSchema = new mongoose.Schema({
   },
   fechaFormato: {
     type: String,
-    default: () => new Date().toLocaleString('es-CO')
+    default: () => {
+      // Hora en zona horaria de Colombia (UTC-5)
+      const fecha = new Date();
+      const opciones = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+        timeZone: 'America/Bogota'
+      };
+      return fecha.toLocaleString('es-CO', opciones);
+    }
   }
 });
 
