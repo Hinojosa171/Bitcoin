@@ -6,7 +6,7 @@
 const char* ssid = "emcali_602_24_Ghz";           // <- Tu red 2.4 GHz
 const char* password = "6023342942mpeyy";         // <- Tu contraseña
 const char* urlCoinGecko = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd";
-const char* urlBackend = "https://sampling-frays-engaging.ngrok-free.dev/api/precios"; // <- Tu URL de ngrok
+const char* urlBackend = "https://bitcoin-cvaq.onrender.com/api/precios"; // <- Tu URL de Render
 
 unsigned long lastSendTime = 0;
 const unsigned long INTERVAL = 1 * 60 * 1000;    // 1 minuto para pruebas (60000 milisegundos)
