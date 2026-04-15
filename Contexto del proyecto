@@ -1,0 +1,159 @@
+CONTEXTO DEL PROYECTO – IoT con ESP32 + CoinGecko + Backend propio
+1. Objetivo general del parcial
+Construir un sistema IoT completo donde:
+
+Un ESP32 se conecta a Internet por WiFi.
+
+Cada cierto tiempo, el ESP32 consulta el precio actual de Bitcoin usando la API pública de CoinGecko (petición HTTP GET).
+
+El ESP32 procesa la respuesta (extrae el precio en USD) y la envía a un backend propio mediante una petición HTTP POST.
+
+El backend recibe los datos, los guarda (en memoria o base de datos) y los muestra en una página web (frontend) sencilla.
+
+Todo el código y la documentación se entregan como evidencia del sistema funcionando.
+
+2. ¿Qué tenemos ya funcionando?
+✅ Entorno de desarrollo listo - IDE de Arduino, Node.js, VS Code
+
+✅ ESP32 conectado a WiFi - 192.168.1.17 (emcali_602_24_Ghz 2.4 GHz)
+
+✅ Backend Node.js + Express - Corriendo en http://localhost:3000
+
+✅ Frontend dashboard - Mostrando datos en tiempo real
+
+✅ ngrok configurado - URL pública: https://sampling-frays-engaging.ngrok-free.dev
+
+✅ Sistema IoT FUNCIONANDO - ESP32 consultando CoinGecko y enviando precios al backend
+
+✅ MongoDB Atlas CONECTADO - Base de datos TuCobradorDB configurada y en funcionamiento
+
+✅ Almacenamiento persistente - Los precios se guardan en MongoDB, no en memoria
+
+✅ Intervalo optimizado - ESP32 envía datos cada 1 minuto (fue ajustado de 5 minutos)
+
+3. ¿Qué falta por hacer? (hoja de ruta)
+✅ Paso 2 – Programar el ESP32 para que consulte CoinGecko
+✅ Usar el código completo que incluye HTTPClient y ArduinoJson.
+✅ Probar que el ESP32 recibe el precio de Bitcoin y lo muestra en el monitor serie.
+✅ Ajustar el intervalo de envío (5 minutos para pruebas).
+
+✅ Paso 3 – Crear el backend y frontend en Visual Studio Code
+✅ Crear la estructura de carpetas
+✅ Copiar el código del backend (Node.js + Express) y del frontend (HTML/CSS/JS)
+✅ Instalar dependencias: npm install
+✅ Ejecutar el servidor local: npm start
+✅ Verificar en http://localhost:3000
+
+✅ Paso 4 – Exponer el backend a Internet con ngrok
+✅ Descargar e instalar ngrok
+✅ Ejecutar: ngrok http 3000
+✅ URL pública obtenida: https://sampling-frays-engaging.ngrok-free.dev
+
+✅ Paso 5 – Conectar el ESP32 con el backend
+✅ Modificar la variable urlBackend con la URL de ngrok
+✅ Agregar WiFiClientSecure.h para soporte HTTPS
+✅ Subir el código al ESP32
+✅ Verificado en monitor serie: "✅ Enviado OK al backend"
+
+✅ Paso 6 – Verificar el sistema completo
+✅ Abrir http://localhost:3000 en el navegador
+✅ Verificar que aparecen los precios del ESP32 en tiempo real
+✅ La tabla se actualiza automáticamente cada 10 segundos
+✅ Dashboard muestra: Total registros, Precio actual, Máximo, Mínimo
+
+✅ Paso 7 – Implementar MongoDB + Render (COMPLETADO)
+✅ Paso 7.1 – MongoDB Atlas configurado
+   → Cluster creado en MongoDB Atlas
+   → Connection String obtenida: mongodb+srv://Prueba:***@cluster0.0ht3eoq.mongodb.net/TuCobradorDB
+   → Usuario y base de datos listos
+
+✅ Paso 7.2 – Backend modificado para MongoDB
+   → npm install mongoose realizado
+   → Schema creado para tabla de precios (precio, moneda, fechaRegistro, fechaFormato)
+   → Almacenamiento en memoria reemplazado por MongoDB
+   → Conexión a MongoDB Atlas verificada: "✅ MongoDB conectado correctamente"
+   → Rutas API actualizadas (POST y GET funcionando con BD)
+
+✅ Paso 7.3 – Datos persistentes implementados
+   → El historial de precios se guarda permanentemente en MongoDB
+   → Los datos no se pierden al reiniciar el servidor
+   → La base de datos almacena automáticamente: timestamp, precio, moneda
+
+📋 Paso 8 – Desplegar en Render.com (PRÓXIMO)
+Tareas pendientes:
+🔲 Paso 8.1 – Crear cuenta en GitHub
+   → Si no la tiene, crear en https://github.com
+
+🔲 Paso 8.2 – Subir código a GitHub
+   → git init
+   → git add .
+   → git commit -m "Sistema IoT con MongoDB"
+   → git push al repositorio
+
+🔲 Paso 8.3 – Crear cuenta en Render.com
+   → Registrarse en https://render.com
+   → Conectar con GitHub
+
+🔲 Paso 8.4 – Deployar servidor en Render
+   → Crear Web Service
+   → Conectar repositorio GitHub
+   → Configurar: Build Command: npm install
+   → Configurar: Start Command: node server.js
+   → Agregar variable de entorno: MONGO_URI=mongodb+srv://Prueba:***@cluster0.0ht3eoq.mongodb.net/TuCobradorDB
+   → Desplegar y obtener URL fija (ej: https://iot-bitcoin-api.onrender.com)
+
+🔲 Paso 8.5 – Actualizar ESP32 con URL de Render
+   → Cambiar urlBackend a la URL fija de Render
+   → ESP32 enviará datos permanentemente a la nube
+   → Recompilar y subir firmware
+
+4. Tecnologías utilizadas
+Componente	Tecnología / Herramienta
+Microcontrolador	ESP32 (programado con Arduino C++)
+API externa	CoinGecko (gratuita, sin API Key)
+Backend	Node.js + Express + CORS
+Frontend	HTML5, CSS, JavaScript (fetch)
+Base de datos	MongoDB Atlas (IMPLEMENTADO - TuCobradorDB)
+ORM	Mongoose (para manejo de esquemas y conexión)
+Exposición a Internet	ngrok (pruebas actuales) → Render (producción - próximo)
+Deploy	Render.com (próximo - nube)
+IDE	Arduino IDE + Visual Studio Code
+Intervalos	ESP32 envía datos cada 1 minuto
+Persistencia	Guardado automático en MongoDB → historial permanente
+5. Posibles dificultades y soluciones
+El ESP32 no se conecta a la red WiFi → Verificar que la red sea 2.4 GHz y que el nombre/contraseña sean correctos.
+
+El ESP32 recibe el precio pero no puede hacer POST → Revisar que la URL del backend sea pública (no localhost) y que el backend esté corriendo.
+
+El backend no recibe datos → Revisar que CORS esté habilitado (app.use(cors())) y que el ESP32 envíe Content-Type: application/json.
+
+ngrok se detiene al cerrar la terminal → Dejar la terminal abierta; para pruebas cortas no hay problema. Para entrega, usar Render.
+
+6. RESUMEN FINAL - SISTEMA EN AVANCE ✅
+
+✅ Conectividad WiFi del ESP32: FUNCIONANDO (192.168.1.17)
+✅ Código ESP32 (GET + POST): IMPLEMENTADO Y PROBADO
+✅ Backend Node.js + Express: CORRIENDO EN http://localhost:3000
+✅ Frontend dashboard: MOSTRANDO DATOS EN TIEMPO REAL
+✅ Exposición a Internet: ACTIVO CON ngrok (https://sampling-frays-engaging.ngrok-free.dev)
+✅ Prueba integral ESP32 ↔ Backend ↔ CoinGecko: FUNCIONANDO
+✅ Recepción de precios: CONFIRMADA ($74,579 USD - última verificación)
+✅ MongoDB Atlas: CONECTADO Y FUNCIONANDO
+✅ Persistencia de datos: IMPLEMENTADA (Historial guardado permanentemente)
+✅ Intervalo de envío: OPTIMIZADO (1 minuto entre consultas)
+✅ Almacenamiento: MIGRADO DE MEMORIA A MONGODB
+
+=== ESTADO: SISTEMA OPERACIONAL CON PERSISTENCIA ===
+
+7. PRÓXIMOS PASOS - PRODUCCIÓN
+
+PASO 8: Desplegar en Render.com (Siguiente sesión)
+→ Crear repositorio en GitHub
+→ Conectar con Render
+→ Obtener URL fija para reemplazar ngrok
+→ Sistema pasará a PRODUCCIÓN CLOUD
+
+REFERENCIAS DE CÓDIGO ACTUALIZADO:
+- Backend: c:\Users\USUARIO\Desktop\Proyecto eps32\backend\server.js (MongoDB integrado)
+- ESP32: c:\Users\USUARIO\Desktop\Proyecto eps32\Codigo de esp32 (Intervalo 1 min)
+- Frontend: c:\Users\USUARIO\Desktop\Proyecto esp32\backend\public\index.html (API funcional)
