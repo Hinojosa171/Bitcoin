@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Connection String de MongoDB
-const MONGO_URI = 'mongodb+srv://Prueba:EdlicA6qY2fxU7n4@cluster0.0ht3eoq.mongodb.net/TuCobradorDB?retryWrites=true&w=majority';
+// Connection String de MongoDB (desde variables de entorno)
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://Prueba:EdlicA6qY2fxU7n4@cluster0.0ht3eoq.mongodb.net/TuCobradorDB?retryWrites=true&w=majority';
 
 // Middleware
 app.use(cors());
