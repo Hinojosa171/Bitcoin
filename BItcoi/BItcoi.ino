@@ -1,22 +1,29 @@
-// ===== SISTEMA IoT: ESP32 + CoinGecko + Backend =====
+// ===== SISTEMA IoT: ESP32 + CoinGecko + Backend (CON AUTENTICACIÓN) =====
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
-const char* ssid = "iPhone de Alejandra";           // <- Tu red 2.4 GHz 
-const char* password = "cristalyaleja";         // <- Tu contraseña
+const char* ssid = "emcali_602_24_Ghz";           // <- Tu red 2.4 GHz
+const char* password = "6023342942mpeyy";         // <- Tu contraseña
 const char* urlCoinGecko = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd";
-const char* urlBackend = "https://bitcoin-cvaq.onrender.com/api/precios";
+const char* urlBackend = "http://192.168.1.18:3000/api/precios";  // ← Backend local con puerto 3000
 
+// ============= CREDENCIALES DEL ESP32 =============
+const char* ID_ESP32 = "ESP32_BITCOIN_001";
+const char* API_KEY = "sk_prod_1776821164150_iggo20d4p";  // ← API Key registrada en MongoDB
+
+// ============= VARIABLES DE TIEMPO =============
 unsigned long lastSendTime = 0;
-const unsigned long INTERVAL = 1 * 60 * 1000;
+const unsigned long INTERVAL = 1 * 60 * 1000;    // 1 minuto
 
 void setup() {
   Serial.begin(115200);
   delay(1000);
   
-  Serial.println("\n\n=== INICIANDO SISTEMA IoT ===");
+  Serial.println("\n\n=== INICIANDO SISTEMA IoT (AUTENTICADO) ===");
+  Serial.print("ID Dispositivo: ");
+  Serial.println(ID_ESP32);
   Serial.println("Conectando a WiFi...");
   WiFi.begin(ssid, password);
 
@@ -38,12 +45,13 @@ void setup() {
 void loop() {
   unsigned long ahora = millis();
   
+  // Verificar si pasaron 5 minutos
   if (ahora - lastSendTime >= INTERVAL) {
     lastSendTime = ahora;
     obtenerPrecioBitcoin();
   }
   
-  delay(1000);
+  delay(1000); // Verificar cada segundo
 }
 
 void obtenerPrecioBitcoin() {
@@ -63,6 +71,7 @@ void obtenerPrecioBitcoin() {
       String payload = http.getString();
       Serial.println("✅ Respuesta recibida");
       
+      // Parsear JSON
       StaticJsonDocument<200> doc;
       DeserializationError error = deserializeJson(doc, payload);
 
@@ -71,6 +80,7 @@ void obtenerPrecioBitcoin() {
         Serial.print("💰 Precio Bitcoin: $");
         Serial.println(precio);
         
+        // Enviar al backend
         enviarAlBackend(precio);
       } else {
         Serial.println("❌ Error al parsear JSON");
@@ -87,43 +97,38 @@ void obtenerPrecioBitcoin() {
 }
 
 void enviarAlBackend(float precio) {
-  WiFiClientSecure *client = new WiFiClientSecure;
-  if(client) {
-    client->setInsecure();
+  // Para localhost (HTTP), usar HTTPClient normal
+  HTTPClient http;
+  
+  Serial.println("📤 Enviando al backend local...");
+  
+  if (http.begin(urlBackend)) {
+    http.addHeader("Content-Type", "application/json");
     
-    HTTPClient http;
-    Serial.println("📤 Enviando al backend...");
+    // ============= JSON CON ID Y API KEY =============
+    String json = "{\"id_dispositivo\":\"";
+    json += ID_ESP32;
+    json += "\",\"api_key\":\"";
+    json += API_KEY;
+    json += "\",\"precio\":";
+    json += String(precio);
+    json += ",\"moneda\":\"USD\"}";
     
-    if (http.begin(*client, urlBackend)) {
-      http.addHeader("Content-Type", "application/json");
-      
-      String json = "{\"precio\":" + String(precio) + ",\"moneda\":\"USD\",\"timestamp\":\"" + String(millis()) + "\"}";
-      
-      int httpCode = http.POST(json);
-      
-      if (httpCode > 0) {
-        Serial.print("📡 Respuesta HTTP: ");
-        Serial.println(httpCode);
-        
-        if (httpCode == HTTP_CODE_OK || httpCode == 201) {
-          Serial.println("✅ Enviado OK al backend ✅");
-          String response = http.getString();
-          Serial.println("Respuesta: " + response);
-        } else {
-          Serial.print("⚠️  Backend respondió: ");
-          Serial.println(httpCode);
-        }
+    int httpCode = http.POST(json);
+    
+    if (httpCode > 0) {
+      if (httpCode == 201) {
+        Serial.println("✅ Enviado OK al backend (201)");
+      } else if (httpCode == 401) {
+        Serial.println("❌ Error 401: ID o API Key inválidos");
+      } else if (httpCode == 403) {
+        Serial.println("❌ Error 403: Dispositivo inactivo");
       } else {
-        Serial.println("❌ No se pudo conectar al backend");
+        Serial.print("⚠️ Backend respondió: ");
+        Serial.println(httpCode);
       }
-      
-      http.end();
-    } else {
-      Serial.println("❌ No se pudo comenzar HTTP");
     }
     
-    delete client;
-  } else {
-    Serial.println("❌ No se pudo crear WiFiClientSecure");
+    http.end();
   }
 }

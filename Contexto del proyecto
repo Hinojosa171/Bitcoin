@@ -150,7 +150,117 @@ ngrok se detiene al cerrar la terminal → Dejar la terminal abierta; para prueb
 ✅ GitHub: CÓDIGO SUBIDO Y VERSIONADO
 ✅ Render: DEPLOYADO Y FUNCIONANDO EN PRODUCCIÓN
 
+✅ Paso 9 – Sistema de Autenticación por Dispositivo (COMPLETADO) ✅
+
+✅ Paso 9.1 – Instalación de bcrypt
+   → npm install bcrypt realizado
+   → Librería de encriptación de contraseñas instalada y funcionando
+
+✅ Paso 9.2 – Schema de Dispositivos creado
+   → dispositivoSchema con campos:
+      • id_dispositivo (String, único)
+      • api_key_encriptada (String, bcrypt hash)
+      • nombre (String, predeterminado "ESP32")
+      • estado (enum: 'activo', 'inactivo')
+      • fechaRegistro (Date)
+      • ultimaConexion (Date)
+   → Modelo Dispositivo creado en MongoDB
+
+✅ Paso 9.3 – Middleware de validación implementado
+   → validarDispositivo() en backend verifica:
+      • ID dispositivo requerido (status 400 si falta)
+      • API Key requerida (status 400 si falta)
+      • Dispositivo existe en MongoDB (status 401 si no existe)
+      • Dispositivo está activo (status 403 si está inactivo)
+      • bcrypt.compare() valida API Key contra versión encriptada (status 401 si inválida)
+   → Detecta intentos de acceso no autorizado automáticamente
+
+✅ Paso 9.4 – Nuevas rutas API creadas
+   → POST /api/dispositivos/registrar
+      • Genera API Key única: "sk_prod_[timestamp]_[random]"
+      • Encripta con bcrypt (10 rounds de salt)
+      • Guarda nuevo dispositivo en MongoDB
+      • Retorna API Key en TEXTO PLANO (mostrada UNA SOLA VEZ)
+      • Respuesta: {"mensaje":"✅ Dispositivo registrado...","id_dispositivo":"...","api_key":"sk_prod_...","advertencia":"⚠️ GUARDA ESTA API KEY..."}
+      • Status: 201 Created
+   
+   → GET /api/dispositivos
+      • Lista todos los dispositivos registrados
+      • NO expone api_key_encriptada por seguridad
+      • Muestra: _id, id_dispositivo, nombre, estado, ultimaConexion, fechaRegistro
+      • Útil para admin/debugging
+      • Status: 200 OK
+
+✅ Paso 9.5 – Rutas existentes actualizadas para seguridad
+   → POST /api/precios (modificada para requerir autenticación)
+      • Ahora usa middleware: app.post('/api/precios', validarDispositivo, async (req, res) => {...})
+      • Extrae id_dispositivo del req.dispositivo autenticado
+      • Guarda en MongoDB con identificación del dispositivo que envió
+      • Retorna 201 SOLO si credenciales son válidas
+      • Rechaza con 401/403 si credenciales son inválidas
+      • Actualiza ultimaConexion del dispositivo automáticamente
+      • Respuesta OK: {"mensaje":"Precio registrado OK","dispositivo":"ESP32_BITCOIN_001","registro":{...}}
+   
+   → GET /api/precios (mejorada con info del dispositivo)
+      • Ahora incluye campo "dispositivo" en cada registro retornado
+      • Identifica qué ESP32 envió cada precio
+      • Permite rastrear datos por dispositivo
+      • Respuesta incluye: {total: N, precios: [{id, dispositivo, precio, moneda, timestamp, recibidoEn}, ...]}
+
+✅ Paso 9.6 – ESP32 configurado con credenciales seguras
+   → Constantes añadidas al código:
+      • const char* ID_ESP32 = "ESP32_BITCOIN_001"
+      • const char* API_KEY = "sk_prod_1776821164150_iggo20d4p"
+      • unsigned long lastSendTime = 0
+      • const unsigned long INTERVAL = 1 * 60 * 1000  (1 minuto)
+   
+   → Función enviarAlBackend() actualizada para incluir credenciales:
+      • JSON POST ahora construye:
+        {
+          "id_dispositivo": "ESP32_BITCOIN_001",
+          "api_key": "sk_prod_1776821164150_iggo20d4p",
+          "precio": 74521.50,
+          "moneda": "USD"
+        }
+      • Verifica respuesta HTTP: 201 (OK), 401 (credenciales inválidas), 403 (dispositivo inactivo)
+      • Muestra mensajes en Serial Monitor para debugging
+
+✅ Paso 9.7 – Proceso de Registro de Dispositivo
+   1. Backend genera dispositivo con: 
+      → POST /api/dispositivos/registrar {id_dispositivo: "ESP32_BITCOIN_001", nombre: "ESP32 Bitcoin Monitor"}
+   2. Backend retorna API Key única (ejemplo: "sk_prod_1776821164150_iggo20d4p")
+   3. Usuario copia API Key en código ESP32 como const char* API_KEY = "..."
+   4. ESP32 se programa con credenciales y se sube
+   5. Cada POST incluye ID + API Key
+   6. Backend valida y acepta/rechaza según corresponda
+
+✅ Paso 9.8 – Pruebas de seguridad completadas y verificadas
+   → Test 1 – API Key VÁLIDA: Responde HTTP 201 ✅ (Precio registrado)
+   → Test 2 – API Key INVÁLIDA: Responde HTTP 401 ✅ (Rechazado: "API Key inválida")
+   → Test 3 – Dispositivo NO REGISTRADO: Responde HTTP 401 ✅ (Rechazado: "Dispositivo no autorizado")
+   → Test 4 – Dispositivo INACTIVO: Responde HTTP 403 ✅ (Rechazado: "Dispositivo inactivo")
+   → Test 5 – Datos INCOMPLETOS: Responde HTTP 400 ✅ (Rechazado: "ID y API Key requeridos")
+   → Test 6 – MongoDB PERSISTENCE: Dispositivo y credenciales persisten ✅
+
+✅ Paso 9.9 – Base de datos MongoDB actualizada
+   → Colección NUEVA: Dispositivo
+      • Documento registrado: {id_dispositivo: "ESP32_BITCOIN_001", api_key_encriptada: "$2b$10$...", nombre: "ESP32 Bitcoin Monitor", estado: "activo", fechaRegistro: Date, ultimaConexion: Date}
+   
+   → Colección EXISTENTE: Precio (modificada)
+      • Campo id_dispositivo agregado a cada documento
+      • Registro ejemplo: {_id: ObjectId(...), id_dispositivo: "ESP32_BITCOIN_001", precio: 74521.50, moneda: "USD", fechaRegistro: Date, fechaFormato: "21/04/2026, 08:26:28 p. m."}
+      • Ahora es posible filtrar precios por dispositivo
+
+✅ Paso 9.10 – Logs del backend verificados
+   → En Terminal con "npm start" se ven los logs:
+      ✅ MongoDB conectado correctamente
+      ✅ Dispositivo registrado: ESP32_BITCOIN_001
+      ✅ Precio recibido de ESP32_BITCOIN_001: $74521.5 - Guardado en MongoDB
+      ❌ API Key inválida para: [dispositivo_incorrecto] (para pruebas fallidas)
+      ❌ Dispositivo no encontrado: [dispositivo_no_existe] (para pruebas fallidas)
+
 === 🎉 ESTADO: SISTEMA COMPLETADO Y OPERACIONAL EN PRODUCCIÓN 🎉 ===
+=== 🔐 CON SISTEMA DE AUTENTICACIÓN POR DISPOSITIVO IMPLEMENTADO 🔐 ===
 
 ---
 
@@ -169,8 +279,14 @@ ngrok se detiene al cerrar la terminal → Dejar la terminal abierta; para prueb
 
 **Archivos del Proyecto:**
 - Backend: c:\Users\USUARIO\Desktop\Proyecto eps32\backend\server.js
-- ESP32: c:\Users\USUARIO\Desktop\Proyecto eps32\Codigo de esp32
-- Frontend: c:\Users\USUARIO\Desktop\Proyecto eps32\backend\public\index.html
+- ESP32: c:\Users\USUARIO\Desktop\Proyecto eps32\BItcoi\BItcoi.ino
+- Frontend: c:\Users\USUARIO\Desktop\Proyecto esp32\backend\public\index.html
+
+**Credenciales del Sistema (AUTENTICACIÓN):**
+- ID Dispositivo: ESP32_BITCOIN_001
+- API Key: sk_prod_1776821164150_iggo20d4p
+- Estado: ACTIVO
+- Última conexión: 22/04/2026 01:26:28
 
 ---
 
@@ -214,7 +330,17 @@ ngrok se detiene al cerrar la terminal → Dejar la terminal abierta; para prueb
 ✅ Zona horaria Colombia correcta
 ✅ Dashboard actualizado sin errores
 ✅ Documentación completa
+✅ Sistema de autenticación por dispositivo IMPLEMENTADO
+✅ bcrypt instalado y configurado
+✅ Middleware de validación funcionando
+✅ Nuevas rutas de registro de dispositivos creadas
+✅ Credenciales del ESP32 guardadas en MongoDB
+✅ Pruebas de seguridad completadas (401, 403, 400 responses)
+✅ API Key encriptada y segura
+✅ Logs de acceso funcionando
+✅ Dispositivo ESP32_BITCOIN_001 REGISTRADO Y ACTIVO
 
-**PROYECTO 100% COMPLETADO** 🎓
+**PROYECTO 100% COMPLETADO CON AUTENTICACIÓN** 🎓🔐
 
-Fecha de finalización: 15 de Abril, 2026
+Fecha de implementación autenticación: 21 de Abril, 2026
+Fecha de finalización total: 21 de Abril, 2026
